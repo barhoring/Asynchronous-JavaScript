@@ -25,21 +25,23 @@ function print(text) {
 
 
 function getFile(file) {
-	//this.filereq = file;
+
 	usher.checkIn(file);
-	//pending[i++] =  true;
 	fakeAjax(file,function(text){
+		// callback once reponse arrived
 		print(this.filereq + " arrived");
-		this.filenum = convertReq2Number(file);
-		debugger;
-		responses[this.filenum - 1 ] = text;
+		filenum = convertReq2Number(file);
+		// when request has returned, put it on the queue
+		responses[filenum - 1 ] = text;
 		usher.updatePendingStatus(filenum)
 		var isnext = usher.checkFirstInLine(filenum);
-		var ispending = usher.checkPending();
 		isnext ? usher.wakeUp(filenum) : null;
+
 	});
 }
 
+
+responses = []
 var usher = Usher();
 
 // request all files at once in "parallel"
@@ -48,14 +50,7 @@ getFile("file2");
 getFile("file3");
 
 
-
-// when request has returned, put it on the queue
-
-responses = []
-
-//var usher = Usher();
-
-
+// handles the line / queue of requests
 function Usher(){
 	var next = 1;
 	var line = [];
@@ -75,9 +70,8 @@ function Usher(){
 	function checkIn(file){
 		
 		pendings[cnt] = true;
-		//values[cnt] = this.value;
-		//line.push(req);
 		var req = Req(file);
+		// if it's the first request make it the first in line
 		!cnt ? req.makePropagator() : null;
 		line.push(req);
 		cnt++;	
